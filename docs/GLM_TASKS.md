@@ -3,7 +3,7 @@
 ## M0 foundation
 - [x] GitHub README and agent instructions
 - [x] Terraform offline root, static validation pipeline, test baseline
-- [x] Confirm GitHub Actions result with real run (fmt fix applied; run id recorded in docs/VALIDATION.md after this push)
+- [x] Confirm GitHub Actions result with real run (fmt fix applied; run 43887439076 green — docs/VALIDATION.md)
 
 ## M1 offline work — STATUS: implemented 2026-11-16 (local battery green, 64 tests)
 

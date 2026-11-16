@@ -57,4 +57,4 @@ GitHub Actions run recorded below after pushing this commit.
 |---|---|---|
 | 2026-11-16T13:24Z | 43875452924 (scaffold) | failure — `fmt -check` exit 3 on variables.tf |
 | 2026-11-16T13:26Z | 43875774824 (scaffold) | failure — `fmt -check` exit 3 on variables.tf |
-| 2026-11-16 | *(recorded after push)* | pending |
+| 2026-11-16T14:36Z | 43887439076 (implementation, commit 7794379) | **success — 64 tests + fmt + init + validate green on ubuntu runner / terraform 1.10.5** |
