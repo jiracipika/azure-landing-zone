@@ -1,0 +1,3 @@
+# GLM / ZCode handoff — Azure Landing Zone
+
+Read README.md, docs/GLM_TASKS.md, docs/ARCHITECTURE.md, docs/SECURITY.md and docs/VALIDATION.md first. This repository is PRIVATE; preserve visibility. Implement the next offline milestone, create tests, run validators and update real evidence. Use official Azure docs for current capabilities. Use specialized GLM subagents if available. **NO terraform apply/destroy, billable cloud resources, DNS changes, production role changes or paid tests without separate explicit authorization and cost estimate.** Prefer least-privilege OIDC; do not store secrets. Provide code and honest verified results, not just a proposal.

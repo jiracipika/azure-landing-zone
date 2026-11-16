@@ -1,0 +1,5 @@
+flowchart LR
+  Entry["External users or on-premises"] --> Workload["Azure Landing Zone"]
+  Workload --> Control["Governance and security boundary"]
+  Control --> Data["Protected services"]
+  Workload --> Monitor["Observability and evidence"]
