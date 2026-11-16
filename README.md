@@ -1,6 +1,6 @@
 # 05 — Azure Landing Zone
 
-**Azure Cloud Engineering Portfolio** · [GitHub: jiracipika](https://github.com/jiracipika) · **PRIVATE repository** · **Offline scaffold / Azure NOT DEPLOYED**
+**Azure Cloud Engineering Portfolio** · [GitHub: jiracipika](https://github.com/jiracipika) · **PUBLIC repository** · **Offline scaffold / Azure NOT DEPLOYED**
 
 ## Goal
 Demonstrate compliant resource governance and least-privilege infrastructure.
