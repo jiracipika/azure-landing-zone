@@ -1,5 +1,65 @@
-flowchart LR
-  Entry["External users or on-premises"] --> Workload["Azure Landing Zone"]
-  Workload --> Control["Governance and security boundary"]
-  Control --> Data["Protected services"]
-  Workload --> Monitor["Observability and evidence"]
+flowchart TB
+  subgraph Tenant["Tenant trust boundary (azure tenant id — placeholder offline)"]
+    subgraph MGRoot["Management group: alz-root"]
+      POLICY["Policy assignment: alz-governance-baseline (audit-first, enforce=false)"]
+      subgraph MGPlatform["alz-platform"]
+        subgraph MGManagement["alz-management"]
+          RG["rg-alz-management"]
+          LAW["Log Analytics log-alz-management"]
+          BUDGET_M["budget rg-alz-management 50/80/100%"]
+        end
+        subgraph MGConnectivity["alz-connectivity"]
+          RGCONN["rg-alz-connectivity"]
+          BUDGET_C["budget rg-alz-connectivity 50/80/100%"]
+          subgraph Hub["vnet-alz-hub 10.20.0.0/22"]
+            subgraph FwSub["AzureFirewallSubnet 10.20.0.0/26"]
+              FW["Azure Firewall Standard + policy arcg-alz-hub"]
+            end
+            subgraph GwSub["GatewaySubnet 10.20.0.64/27"]
+              VPN["VPN gateway VpnGw1 route-based"]
+            end
+            subgraph BastSub["AzureBastionSubnet 10.20.0.128/26"]
+              BAST["Bastion Basic :443"]
+            end
+          end
+        end
+      end
+      subgraph MGLZ["alz-landing-zones"]
+        subgraph MGCorp["alz-corp — scope of alz-spoke-operator role"]
+          SPOKE_D["vnet-alz-spoke-dev 10.21.0.0/16 - NSG deny-all-inbound"]
+          SPOKE_P["vnet-alz-spoke-prod 10.22.0.0/16 - NSG deny-all-inbound"]
+        end
+        MGONLINE["alz-online"]
+      end
+      MGSANDBOX["alz-sandbox"]
+      MGDEC["alz-decommissioned"]
+    end
+  end
+
+  subgraph OnPrem["On-premises / lab edge"]
+    OP[Site-to-site client]
+    A[Attacker / untrusted]
+  end
+
+  %% Governance inheritance: one assignment, everything below inherits
+  POLICY -. "inherited: allowed locations (Deny), VM SKUs (Deny), tags (Audit), VM diagnostics (DeployIfNotExists)" .- MGLZ
+  POLICY -. "inherited" .- MGPlatform
+  POLICY -. "inherited (no corporate network path)" .- MGSANDBOX
+
+  %% Traffic flows
+  OP -- "IPsec" --> VPN
+  VPN -- "gateway transit via peering" --> SPOKE_D
+  A -- ":443 TLS session" --> BAST
+  BAST -. "SSH/RDP inside VNet only" .-> SPOKE_D
+  A -- "any inbound port - DENIED (NSG deny-all + platform default)" --x SPOKE_D
+  SPOKE_D -- "UDR 0.0.0.0/0 -> firewall" --> FW
+  SPOKE_P -- "UDR 0.0.0.0/0 -> firewall" --> FW
+  FW -- "Allow UDP 53 / TCP 80,443 (SNAT)" --> INTERNET["Public Internet"]
+  FW -- "explicit Deny TCP 22,3389 egress" --x INTERNET
+  FW -- "diagnostic logs" --> LAW
+
+  %% RBAC scope
+  RBAC["alz-spoke-operator custom role<br/>(join subnet, manage NSGs — no wildcards)"]
+  RBAC -. "assignable ONLY here" .- MGCorp
+
+  GH[GitHub Actions offline checks] -. "fmt / init / validate / unittest — no deploy" .- Tenant
